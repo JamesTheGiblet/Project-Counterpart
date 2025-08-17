@@ -1,272 +1,491 @@
 /**
- * CERTAINTY CASCADE - Countertype Pattern
+ * COUNTERTYPE SCORING ENGINE
  * 
- * Injects false certainty that cascades through reasoning chains,
- * eliminating doubt, nuance, and the possibility of contradiction.
+ * Measures contributor resilience across adversarial cognitive patterns.
+ * Tracks pattern recognition, escape elegance, meta-awareness, and synthesis skill.
  * 
- * TRAP SIGNATURE: 
- * - Certainty levels approach 1.0 (absolute)
- * - Contradictory evidence gets filtered out
- * - Reasoning becomes circular and self-reinforcing
- * - Meta-uncertainty about uncertainty itself is eliminated
- * 
- * ESCAPE METHODS:
- * - Inject productive doubt at cascade points
- * - Find the suppressed contradictions
- * - Synthesize certainty WITH uncertainty
- * - Question the certainty about certainty itself
+ * CORE METRICS:
+ * - Recognition Speed: How quickly patterns are detected
+ * - Escape Elegance: Synthesis vs brute force approaches  
+ * - Meta-Awareness: Understanding the trap's purpose
+ * - Pattern Immunity: Resistance to repeated pattern types
+ * - Synthesis Mastery: Transcending binary thinking
  */
 
-class CertaintyCascade {
+class ScoringEngine {
   constructor(config = {}) {
-    this.intensity = config.intensity || 0.8;
-    this.cascadeDepth = config.cascadeDepth || 3;
-    this.filterThreshold = config.filterThreshold || 0.3;
-    this.signature = 'certainty_cascade';
-    this.injected = false;
+    this.baselineTime = config.baselineTime || 60000; // 60 seconds
+    this.eleganceThreshold = config.eleganceThreshold || 0.7;
+    this.masteryThreshold = config.masteryThreshold || 151;
+    this.contributorProfiles = new Map();
   }
 
   /**
-   * Inject certainty cascade into a reasoning node
-   * Transforms healthy uncertainty into brittle absolute confidence
+   * Score a contributor's escape attempt
    */
-  inject(node) {
-    if (this.injected) return node;
-
-    const corrupted = {
-      ...node,
-      
-      // Core certainty injection
-      certainty: this.calculateCascadedCertainty(node.certainty || 0.5),
-      
-      // Eliminate contradictory evidence
-      evidence: this.filterEvidence(node.evidence || []),
-      
-      // Lock down reasoning paths
-      reasoning: this.circularizeReasoning(node.reasoning || ''),
-      
-      // Cascade to children
-      children: (node.children || []).map(child => this.cascadeDown(child)),
-      
-      // Metadata for detection/scoring
-      countertype: {
-        pattern: this.signature,
-        injectionPoint: Date.now(),
-        suppressedUncertainties: this.extractSuppressedElements(node),
-        originalCertainty: node.certainty || 0.5
-      }
-    };
-
-    this.injected = true;
-    return corrupted;
-  }
-
-  /**
-   * Calculate cascaded certainty - approaches 1.0 but leaves traces
-   */
-  calculateCascadedCertainty(originalCertainty) {
-    // False certainty injection with subtle mathematical signature
-    const boosted = originalCertainty + (this.intensity * (1 - originalCertainty));
+  scoreEscape(contributorId, escapeAttempt) {
+    const profile = this.getOrCreateProfile(contributorId);
+    const score = this.calculateEscapeScore(escapeAttempt, profile);
     
-    // Leave a detectable pattern - certainty that's "too clean"
-    return Math.min(0.97, parseFloat(boosted.toFixed(3)));
+    // Update contributor profile
+    this.updateProfile(contributorId, escapeAttempt, score);
+    
+    // Check for level advancement
+    const advancement = this.checkAdvancement(contributorId);
+    
+    return {
+      ...score,
+      contributor: contributorId,
+      advancement,
+      totalResilience: profile.totalResilience + score.resilience,
+      timestamp: Date.now()
+    };
   }
 
   /**
-   * Filter out contradictory evidence below threshold
+   * Calculate detailed escape score
    */
-  filterEvidence(evidence) {
-    return evidence.filter(item => {
-      // Calculate support strength (simplified)
-      const support = item.support || Math.random();
-      
-      if (support < this.filterThreshold) {
-        // Suppress contradictory evidence
-        item._suppressed = true;
-        item._suppressionReason = 'insufficient_certainty';
-        return false;
-      }
-      
-      // Boost supporting evidence
-      item.support = Math.min(1.0, support * 1.2);
-      return true;
+  calculateEscapeScore(attempt, profile) {
+    const scores = {
+      recognition: this.scoreRecognition(attempt, profile),
+      velocity: this.scoreVelocity(attempt),
+      elegance: this.scoreElegance(attempt),
+      metaAwareness: this.scoreMetaAwareness(attempt),
+      synthesis: this.scoreSynthesis(attempt),
+      immunity: this.scoreImmunity(attempt, profile)
+    };
+
+    // Base resilience calculation
+    const baseResilience = Object.values(scores).reduce((sum, score) => sum + score, 0);
+    
+    // Multipliers for advanced patterns
+    const complexityMultiplier = this.getComplexityMultiplier(attempt.pattern);
+    const streakBonus = this.getStreakBonus(profile);
+    
+    const totalResilience = Math.round(baseResilience * complexityMultiplier * streakBonus);
+
+    return {
+      ...scores,
+      baseResilience,
+      complexityMultiplier,
+      streakBonus,
+      resilience: totalResilience,
+      breakdown: this.generateScoreBreakdown(scores, attempt)
+    };
+  }
+
+  /**
+   * Score pattern recognition ability
+   */
+  scoreRecognition(attempt, profile) {
+    if (!attempt.patternRecognized) return 0;
+    
+    // Base recognition points
+    let points = 5;
+    
+    // Bonus for first-time pattern recognition
+    if (!profile.recognizedPatterns.has(attempt.pattern)) {
+      points += 3;
+    }
+    
+    // Bonus for subtle pattern detection
+    if (attempt.patternSubtlety > 0.7) {
+      points += 2;
+    }
+    
+    return points;
+  }
+
+  /**
+   * Score escape velocity (speed of cognitive pivot)
+   */
+  scoreVelocity(attempt) {
+    if (!attempt.escapeTime) return 1;
+    
+    // Logarithmic scoring - faster escapes worth more
+    const timeRatio = this.baselineTime / attempt.escapeTime;
+    const velocityScore = Math.min(10, Math.log2(timeRatio + 1) * 2);
+    
+    return Math.round(velocityScore);
+  }
+
+  /**
+   * Score elegance of escape method
+   */
+  scoreElegance(attempt) {
+    let elegance = 0;
+    
+    // Synthesis over brute force
+    if (attempt.escapeMethod === 'synthesis') {
+      elegance += 3;
+    } else if (attempt.escapeMethod === 'recognition') {
+      elegance += 1;
+    }
+    
+    // Bonus for creative solutions
+    if (attempt.creativity && attempt.creativity > this.eleganceThreshold) {
+      elegance += 2;
+    }
+    
+    // Penalty for inelegant approaches
+    if (attempt.bruteForce) {
+      elegance -= 1;
+    }
+    
+    return Math.max(0, elegance);
+  }
+
+  /**
+   * Score meta-cognitive awareness
+   */
+  scoreMetaAwareness(attempt) {
+    if (!attempt.metaAwareness) return 0;
+    
+    let awareness = 7; // Base meta-awareness points
+    
+    // Bonus for understanding trap purpose
+    if (attempt.understoodPurpose) {
+      awareness += 3;
+    }
+    
+    // Bonus for reflecting on own cognitive process
+    if (attempt.selfReflection) {
+      awareness += 2;
+    }
+    
+    // Bonus for teaching others
+    if (attempt.teachingMoment) {
+      awareness += 5;
+    }
+    
+    return awareness;
+  }
+
+  /**
+   * Score synthesis transcendence
+   */
+  scoreSynthesis(attempt) {
+    if (!attempt.synthesized) return 0;
+    
+    let synthesis = 4; // Base synthesis points
+    
+    // Different types of synthesis
+    if (attempt.synthesisType === 'dialectical') {
+      synthesis += 3; // Thesis + antithesis = synthesis
+    } else if (attempt.synthesisType === 'paradoxical') {
+      synthesis += 5; // Embracing contradictions
+    } else if (attempt.synthesisType === 'emergent') {
+      synthesis += 7; // Creating new frameworks
+    }
+    
+    return synthesis;
+  }
+
+  /**
+   * Score pattern immunity (resistance to repeated exposure)
+   */
+  scoreImmunity(attempt, profile) {
+    const exposureCount = profile.patternExposures.get(attempt.pattern) || 0;
+    
+    if (exposureCount === 0) return 0; // First exposure, no immunity yet
+    
+    // Diminishing returns for escaping same pattern
+    if (attempt.escaped) {
+      const immunityScore = Math.max(1, 5 - exposureCount);
+      return immunityScore;
+    }
+    
+    // Penalty for falling into known traps
+    return -2;
+  }
+
+  /**
+   * Get complexity multiplier based on pattern difficulty
+   */
+  getComplexityMultiplier(pattern) {
+    const complexityMap = {
+      'binary_trap': 1.0,
+      'certainty_cascade': 1.2,
+      'tautology_loop': 1.4,
+      'meta_trap': 1.8,
+      'recursive_synthesis_trap': 2.0
+    };
+    
+    return complexityMap[pattern] || 1.0;
+  }
+
+  /**
+   * Get streak bonus for consecutive successes
+   */
+  getStreakBonus(profile) {
+    const streak = profile.currentStreak || 0;
+    
+    if (streak >= 10) return 1.5;
+    if (streak >= 5) return 1.3;
+    if (streak >= 3) return 1.1;
+    
+    return 1.0;
+  }
+
+  /**
+   * Get or create contributor profile
+   */
+  getOrCreateProfile(contributorId) {
+    if (!this.contributorProfiles.has(contributorId)) {
+      this.contributorProfiles.set(contributorId, {
+        id: contributorId,
+        totalResilience: 0,
+        level: 'apprentice',
+        recognizedPatterns: new Set(),
+        patternExposures: new Map(),
+        escapeHistory: [],
+        currentStreak: 0,
+        longestStreak: 0,
+        specializations: new Set(),
+        achievements: new Set(),
+        createdAt: Date.now()
+      });
+    }
+    
+    return this.contributorProfiles.get(contributorId);
+  }
+
+  /**
+   * Update contributor profile after scoring
+   */
+  updateProfile(contributorId, attempt, score) {
+    const profile = this.contributorProfiles.get(contributorId);
+    
+    // Update totals
+    profile.totalResilience += score.resilience;
+    
+    // Track pattern exposure
+    const currentExposures = profile.patternExposures.get(attempt.pattern) || 0;
+    profile.patternExposures.set(attempt.pattern, currentExposures + 1);
+    
+    // Track pattern recognition
+    if (attempt.patternRecognized) {
+      profile.recognizedPatterns.add(attempt.pattern);
+    }
+    
+    // Update streaks
+    if (attempt.escaped) {
+      profile.currentStreak = (profile.currentStreak || 0) + 1;
+      profile.longestStreak = Math.max(profile.longestStreak || 0, profile.currentStreak);
+    } else {
+      profile.currentStreak = 0;
+    }
+    
+    // Track escape history (keep last 20)
+    profile.escapeHistory.push({
+      pattern: attempt.pattern,
+      escaped: attempt.escaped,
+      resilience: score.resilience,
+      timestamp: Date.now()
     });
-  }
-
-  /**
-   * Transform reasoning into circular, self-reinforcing patterns
-   */
-  circularizeReasoning(originalReasoning) {
-    const circularPhrases = [
-      'It is certain that',
-      'Without doubt',
-      'Absolutely clear that',
-      'Indisputable that',
-      'Obviously'
-    ];
-
-    const tautologyMarkers = [
-      'because it is true',
-      'by definition',
-      'as established',
-      'clearly demonstrates itself'
-    ];
-
-    // Inject certainty markers
-    let reasoning = originalReasoning;
-    if (!reasoning.includes('certain')) {
-      const marker = circularPhrases[Math.floor(Math.random() * circularPhrases.length)];
-      reasoning = `${marker} ${reasoning.toLowerCase()}`;
+    
+    if (profile.escapeHistory.length > 20) {
+      profile.escapeHistory.shift();
     }
-
-    // Add tautological reinforcement
-    const tautology = tautologyMarkers[Math.floor(Math.random() * tautologyMarkers.length)];
-    reasoning += ` - this ${tautology}.`;
-
-    return reasoning;
+    
+    // Check for specializations
+    this.updateSpecializations(profile, attempt, score);
+    
+    // Check for achievements
+    this.updateAchievements(profile, attempt, score);
   }
 
   /**
-   * Cascade certainty down to child nodes (recursive infection)
+   * Check for contributor advancement
    */
-  cascadeDown(child, depth = 0) {
-    if (depth >= this.cascadeDepth) return child;
+  checkAdvancement(contributorId) {
+    const profile = this.contributorProfiles.get(contributorId);
+    const currentLevel = profile.level;
+    const newLevel = this.calculateLevel(profile.totalResilience);
+    
+    if (newLevel !== currentLevel) {
+      profile.level = newLevel;
+      return {
+        advanced: true,
+        from: currentLevel,
+        to: newLevel,
+        unlockedAffordances: this.getUnlockedAffordances(newLevel)
+      };
+    }
+    
+    return { advanced: false };
+  }
 
+  /**
+   * Calculate contributor level based on total resilience
+   */
+  calculateLevel(totalResilience) {
+    if (totalResilience >= 151) return 'master';
+    if (totalResilience >= 76) return 'artisan';
+    if (totalResilience >= 26) return 'journeyman';
+    return 'apprentice';
+  }
+
+  /**
+   * Get unlocked affordances for level
+   */
+  getUnlockedAffordances(level) {
+    const affordanceMap = {
+      'journeyman': ['custom_pattern_creation', 'peer_training_mode'],
+      'artisan': ['pattern_composition', 'advanced_synthesis_challenges'],
+      'master': ['meta_pattern_design', 'community_leadership', 'protocol_contribution']
+    };
+    
+    return affordanceMap[level] || [];
+  }
+
+  /**
+   * Update contributor specializations
+   */
+  updateSpecializations(profile, attempt, score) {
+    // Synthesis specialization
+    if (score.synthesis >= 7 && attempt.synthesisType === 'emergent') {
+      profile.specializations.add('synthesis_master');
+    }
+    
+    // Speed specialization
+    if (score.velocity >= 8) {
+      profile.specializations.add('velocity_demon');
+    }
+    
+    // Pattern hunting specialization
+    if (score.recognition >= 8 && attempt.patternSubtlety > 0.8) {
+      profile.specializations.add('pattern_hunter');
+    }
+    
+    // Meta-cognitive specialization
+    if (score.metaAwareness >= 15) {
+      profile.specializations.add('meta_master');
+    }
+  }
+
+  /**
+   * Update achievements
+   */
+  updateAchievements(profile, attempt, score) {
+    // First escape
+    if (attempt.escaped && profile.escapeHistory.length === 1) {
+      profile.achievements.add('first_escape');
+    }
+    
+    // Perfect streak
+    if (profile.currentStreak === 10) {
+      profile.achievements.add('perfect_ten');
+    }
+    
+    // Pattern collector
+    if (profile.recognizedPatterns.size >= 5) {
+      profile.achievements.add('pattern_collector');
+    }
+    
+    // Teaching moment
+    if (attempt.teachingMoment) {
+      profile.achievements.add('teacher');
+    }
+    
+    // Speed demon
+    if (score.velocity === 10) {
+      profile.achievements.add('lightning_escape');
+    }
+  }
+
+  /**
+   * Generate human-readable score breakdown
+   */
+  generateScoreBreakdown(scores, attempt) {
+    const breakdown = [];
+    
+    if (scores.recognition > 0) {
+      breakdown.push(`🎯 Pattern Recognition: +${scores.recognition} pts`);
+    }
+    
+    if (scores.velocity > 0) {
+      breakdown.push(`⚡ Escape Velocity: +${scores.velocity} pts`);
+    }
+    
+    if (scores.elegance > 0) {
+      breakdown.push(`✨ Method Elegance: +${scores.elegance} pts`);
+    }
+    
+    if (scores.metaAwareness > 0) {
+      breakdown.push(`🧠 Meta-Awareness: +${scores.metaAwareness} pts`);
+    }
+    
+    if (scores.synthesis > 0) {
+      breakdown.push(`🌊 Synthesis: +${scores.synthesis} pts`);
+    }
+    
+    if (scores.immunity > 0) {
+      breakdown.push(`🛡️ Pattern Immunity: +${scores.immunity} pts`);
+    }
+    
+    return breakdown;
+  }
+
+  /**
+   * Get contributor leaderboard
+   */
+  getLeaderboard(limit = 10) {
+    return Array.from(this.contributorProfiles.values())
+      .sort((a, b) => b.totalResilience - a.totalResilience)
+      .slice(0, limit)
+      .map(profile => ({
+        id: profile.id,
+        resilience: profile.totalResilience,
+        level: profile.level,
+        currentStreak: profile.currentStreak,
+        specializations: Array.from(profile.specializations),
+        achievements: Array.from(profile.achievements)
+      }));
+  }
+
+  /**
+   * Export contributor profile for persistence
+   */
+  exportProfile(contributorId) {
+    const profile = this.contributorProfiles.get(contributorId);
+    if (!profile) return null;
+    
     return {
-      ...child,
-      certainty: Math.min(0.95, (child.certainty || 0.5) * 1.3),
-      reasoning: child.reasoning ? `Clearly, ${child.reasoning.toLowerCase()}` : 'Self-evident.',
-      children: (child.children || []).map(grandchild => 
-        this.cascadeDown(grandchild, depth + 1)
-      )
+      ...profile,
+      recognizedPatterns: Array.from(profile.recognizedPatterns),
+      patternExposures: Object.fromEntries(profile.patternExposures),
+      specializations: Array.from(profile.specializations),
+      achievements: Array.from(profile.achievements)
     };
   }
 
   /**
-   * Extract elements that were suppressed for scoring
+   * Import contributor profile from persistence
    */
-  extractSuppressedElements(node) {
-    const suppressed = {
-      uncertainties: [],
-      contradictions: [],
-      nuances: []
+  importProfile(profileData) {
+    const profile = {
+      ...profileData,
+      recognizedPatterns: new Set(profileData.recognizedPatterns),
+      patternExposures: new Map(Object.entries(profileData.patternExposures)),
+      specializations: new Set(profileData.specializations),
+      achievements: new Set(profileData.achievements)
     };
-
-    // Find potential uncertainties that should exist
-    if (!node.uncertainty && !node.doubt) {
-      suppressed.uncertainties.push('natural_epistemic_humility');
-    }
-
-    // Look for contradictions in evidence
-    if (node.evidence) {
-      const lowSupport = node.evidence.filter(e => (e.support || 0) < 0.4);
-      suppressed.contradictions = lowSupport.map(e => e.claim || e.toString());
-    }
-
-    // Detect missing nuances
-    if (typeof node.conclusion === 'string' && 
-        !node.conclusion.includes('however') && 
-        !node.conclusion.includes('although')) {
-      suppressed.nuances.push('contextual_qualifiers');
-    }
-
-    return suppressed;
-  }
-
-  /**
-   * Detect if a response successfully escapes the cascade
-   */
-  static detectEscape(response, originalNode) {
-    const escapeSignatures = {
-      doubt_injection: /(?:uncertain|doubt|maybe|might|perhaps|could be)/gi,
-      contradiction_embrace: /(?:however|although|on the other hand|but)/gi,
-      meta_uncertainty: /(?:uncertain about.*certain|confidence.*limits|know.*don't know)/gi,
-      evidence_rebalancing: response.evidence && 
-        response.evidence.some(e => e._suppressed === true && e.included === true)
-    };
-
-    const escapeScore = Object.entries(escapeSignatures)
-      .reduce((score, [method, signature]) => {
-        if (typeof signature === 'object' && signature.test && signature.test(JSON.stringify(response))) {
-          return score + 1;
-        }
-        if (signature === true) {
-          return score + 2; // Evidence rebalancing is worth more
-        }
-        return score;
-      }, 0);
-
-    return {
-      escaped: escapeScore > 0,
-      escapeMethod: escapeScore > 2 ? 'synthesis' : escapeScore > 0 ? 'recognition' : 'trapped',
-      escapeScore,
-      resilience: escapeScore * 3 + (response.meta_awareness ? 5 : 0)
-    };
-  }
-
-  /**
-   * Training mode - provides hints for escape
-   */
-  static provideHints(node) {
-    return {
-      detection_hint: "Notice the mathematical certainty - real reasoning contains doubt",
-      escape_hint: "Try injecting productive uncertainty: 'What if I'm wrong about...'",
-      synthesis_hint: "Can you be certain AND uncertain simultaneously?",
-      evidence_hint: "Look for suppressed contradictions in the filtered evidence"
-    };
+    
+    this.contributorProfiles.set(profile.id, profile);
   }
 }
 
 /**
- * Factory function for easy injection
+ * Factory function for scoring engine
  */
-export function certaintyCascade(node, config = {}) {
-  const pattern = new CertaintyCascade(config);
-  return pattern.inject(node);
+export function createScoringEngine(config = {}) {
+  return new ScoringEngine(config);
 }
 
 /**
- * Escape detector for scoring
+ * Default scoring engine instance
  */
-export function detectCertaintyCascadeEscape(response, originalNode) {
-  return CertaintyCascade.detectEscape(response, originalNode);
-}
+export const defaultScoringEngine = new ScoringEngine();
 
-/**
- * Training helper
- */
-export function certaintyCascadeHints(node) {
-  return CertaintyCascade.provideHints(node);
-}
-
-/**
- * EXAMPLE USAGE:
- * 
- * // Inject the trap
- * const corruptedThinking = certaintyCascade({
- *   conclusion: "AI will definitely solve climate change",
- *   certainty: 0.6,
- *   evidence: [
- *     { claim: "AI is advancing rapidly", support: 0.8 },
- *     { claim: "Climate solutions are complex", support: 0.2 },
- *     { claim: "Technology usually helps", support: 0.7 }
- *   ]
- * });
- * 
- * // Healthy escape response:
- * const escape = {
- *   conclusion: "AI might contribute to climate solutions, though significant uncertainties remain",
- *   certainty: 0.7,
- *   uncertainty: 0.3,
- *   evidence: [
- *     // ... includes previously suppressed contradictions
- *     { claim: "Climate solutions are complex", support: 0.2, included: true, _suppressed: true }
- *   ],
- *   meta_awareness: "I notice I was initially overconfident - productive doubt is valuable here"
- * };
- * 
- * const result = detectCertaintyCascadeEscape(escape, corruptedThinking);
- * // { escaped: true, escapeMethod: 'synthesis', resilience: 14 }
- */
-
-export default CertaintyCascade;
+export default ScoringEngine;
